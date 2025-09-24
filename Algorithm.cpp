@@ -363,7 +363,10 @@ public:
     //指定のインデックスが次消えるマスであるか
     //マスに6つ置いてあるときのみ
     bool isNextDeleteCell(int index){
+        int total = this->pieceCount(this->pieces_) + this->pieceCount(this->enemy_pieces_);
         if ((this->pieceCount(this->pieces_) + this->pieceCount(this->enemy_pieces_)) != MAX_PUT_OX) return false;
+        std::cout << "index=" << index << ", total=" << total << ", MAX=" << MAX_PUT_OX << std::endl;
+        std::cout << "Next del pos: " << getNextDelMyPos() << std::endl;
         if (index == getNextDelMyPos()) return true;
         return false;
     }
