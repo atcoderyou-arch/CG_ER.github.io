@@ -190,7 +190,7 @@
                 }
                 //debug
                 //cell.textContent = i;
-                
+                console.log(i, Module.JS_nextDeleteCell(i));
                 //次消えるところはハイライトする
                 if (Module.JS_nextDeleteCell(i)) {
                     cell.classList.add("nextDeleteCell");
@@ -231,7 +231,7 @@
 
             //deleteを入れる
             Module.JS_deleteCell();
-
+            
             updateBoardAndInfo();
 
             if (Module.JS_isFinished()) {
