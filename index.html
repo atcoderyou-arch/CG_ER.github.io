@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>oxゲーム</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            font-family: Arial, sans-serif;
+        }
+
+        #controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* 項目間の間隔 */
+            margin-bottom: 0px;
+        }
+
+        #board {
+            display: grid;
+            gap: 2px;
+        }
+
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        
+        .nextDeleteCell{
+            background-color: rgba(255, 165, 0, 0.5); /* オレンジ色 */
+        }
+
+
+        .putox {
+            background-color: #d0d0d0;
+            pointer-events: none; /* クリック不可 */
+        }
+
+        button, select {
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        #info {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #gameOver {
+            color: red;
+            font-size: 20px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="controls">
+        <div class="control-group">
+            <label for="gameMode">ゲームモード:</label>
+            <select id="gameMode">
+                <option value="0">通常</option>
+                <option value="1">消去</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <p>先手:</p>
+            <select id="player1Type">
+                <option value="human">人間</option>
+                <option value="cpu">CPU</option>
+            </select>
+            <div id="player1CpuSettings">
+                <select id="player1CpuStrength">
+                    <option value="1">よわい</option>
+                    <option value="99">つよい</option>
+                </select>
+            </div>
+        </div>
+        <div class="control-group">
+            <p>後手:</p>
+            <select id="player2Type">
+                <option value="human">人間</option>
+                <option value="cpu">CPU</option>
+            </select>
+            <div id="player2CpuSettings">
+                <select id="player2CpuStrength">
+                    <option value="1">よわい</option>
+                    <option value="99">つよい</option>
+                </select>
+            </div>
+        </div>
+        <button id="startButton">開始</button>
+    </div>
+    <div id="board"></div>
+    <div id="info">
+        <p><span id="currentPlayerString"></span></p>
+    </div>
+    <div id="gameOver"></div>
+   
+
+
+
+    <script src="Algorithm_JS.js"></script>
+    <script>
+        const board = document.getElementById("board");
+        const player1Type = document.getElementById("player1Type");
+        const player2Type = document.getElementById("player2Type");
+        const startButton = document.getElementById("startButton");
+        const currentPlayerString = document.getElementById("currentPlayerString");
+                const gameoverString = document.getElementById("gameOver");
+
+
+        let isGameActive = false;
+        let isCPUThinkLocking = false;
+
+        function updateCPUSettingView() {
+            const player1CpuSettings = document.getElementById("player1CpuSettings");
+            const player2CpuSettings = document.getElementById("player2CpuSettings");
+            player1CpuSettings.style.display = player1Type.value === "cpu" ? "block" : "none";
+            player2CpuSettings.style.display = player2Type.value === "cpu" ? "block" : "none";
+        }
+        player1Type.addEventListener("change", updateCPUSettingView);
+        player2Type.addEventListener("change", updateCPUSettingView);
+
+        function initializeGame() {
+            //const boardSize = parseInt(document.getElementById("boardSize").value);
+            const boardSize = 3;
+            const game_mode = parseInt(document.getElementById("gameMode").value);
+            const player1IsCpu = player1Type.value === "cpu" ? true : false;
+            const player1CpuStrength = parseInt(document.getElementById("player1CpuStrength").value);
+            const player2IsCpu = player2Type.value === "cpu" ? true : false;
+            const player2CpuStrength = parseInt(document.getElementById("player2CpuStrength").value);
+
+            Module.JS_initializeGame(boardSize, game_mode, player1IsCpu, player1CpuStrength, player2IsCpu, player2CpuStrength);
+            isGameActive = true;
+
+            gameoverString.textContent = "";
+            
+            updateBoardAndInfo();
+            processCPUIfNeeded();
+        }
+
+        function updateBoardAndInfo() {
+            
+            const boardSize = Module.JS_getBoardSize();
+            board.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`;
+            board.style.gridTemplateRows = `repeat(${boardSize}, 50px)`;
+            board.innerHTML = "";
+
+            for (let i = 0; i < boardSize * boardSize; i++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.dataset.index = i; // ChipIndex = 盤面上の座標
+
+                //すでにoxが置かれているかを問い合せる
+                if (Module.JS_isPutOX(i)) {
+                    cell.classList.add("putox");
+                    //cell.dataset.value = 0;
+                    cell.textContent = Module.JS_getPutOX(i); //座標iの値(ox)を入れる
+                    
+                } else {
+                    //置かれていない場合はなし
+                    cell.textContent = ""; 
+                }
+                
+                //次消えるところはハイライトする
+                if (Module.JS_nextDeleteCell(i)) {
+                    cell.classList.add("nextDeleteCell");
+                }
+                /*
+                if (Module.JS_needSecondHighlight(i)) {
+                    cell.classList.add("highlight-secondary");
+                } */
+
+                cell.addEventListener("click", () => handleCellClick(cell));
+
+                board.appendChild(cell);
+            }
+
+            currentPlayerString.textContent = Module.JS_getCurrentPlayerString();
+            
+        }
+
+        async function processCPUIfNeeded() {
+            // CPUの思考(重い処理)の前に画面を強制再描画するため、requestAnimationFrameを2回呼ぶ
+            // https://developer.mozilla.org/ja/docs/Web/API/Web_Animations_API/Tips
+            await new Promise(resolve => requestAnimationFrame(resolve));
+            await new Promise(resolve => requestAnimationFrame(resolve));
+
+            if (!isGameActive) return;
+            if (!Module.JS_isCurrentPlayerCPU()) return;
+
+            //1秒間考えて打つ。
+            isCPUThinkLocking = true;
+            const promise1 = new Promise(resolve => {
+                setTimeout(resolve, 1000);
+            });
+            const promise2 = new Promise(resolve => {
+                const nextMove = Module.JS_calculateAction();
+                resolve(nextMove);
+            });
+            const [_1, nextMove] = await Promise.all([promise1, promise2]);
+            isCPUThinkLocking = false;
+
+            Module.JS_advance(nextMove);
+
+            //deleteを入れる
+            Module.JS_deleteCell();
+
+            updateBoardAndInfo();
+
+            if (Module.JS_isFinished()) {
+                endGame();
+            }
+
+            processCPUIfNeeded();
+        }
+
+        // セルクリック処理
+        function handleCellClick(cell) {
+            if (!isGameActive) return;
+            if (isCPUThinkLocking) return;
+
+            // 有効な処理か判定
+            const chipIndex = parseInt(cell.dataset.index);
+            if (!Module.JS_isValidAction(chipIndex)) return;
+
+            // 実行
+            Module.JS_advance(chipIndex);
+
+            //deleteをいれる
+            Module.JS_deleteCell();
+
+            // ボード更新
+            updateBoardAndInfo()
+
+            // ゲーム終了していたら終了
+            if (Module.JS_isFinished()) {
+                endGame();
+            }
+
+            // CPUの手番に移行
+            processCPUIfNeeded();
+        }
+
+        function endGame() {
+            isGameActive = false;
+            gameoverString.textContent = Module.JS_getGameOverString();
+            
+        }
+
+        startButton.addEventListener("click", () => {
+            if (isCPUThinkLocking) return;
+            initializeGame();
+        });
+
+        Module.onRuntimeInitialized = _ => {
+            updateCPUSettingView();
+            initializeGame();
+        };
+    </script>
+</body>
+</html>
