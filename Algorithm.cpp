@@ -373,6 +373,15 @@ public:
         return this->pieces_[index] || this->enemy_pieces_[index];
     }
 
+    //盤面のマスに置いているoxの情報をリセット　
+    //これを入れてみて、スタート時に、WEB上の盤面がリセットされるかを確認する
+    void resetBoard(){
+        for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+            this->pieces_[i] = 0;
+            this->enemy_pieces_[i] = 0;
+        }
+    } 
+
     //指定のインデックスのマスに置かれているox
     string getPutOX(int index){
         //outOnCUI()と重複しているので、後で、メソッドとして切り出す
@@ -822,6 +831,9 @@ bool JS_nextDeleteCell(int chipIndex) {
     return false;
 }
 
+//開始時の盤面の初期化
+void JS_resetBoard(){return JS_state.resetBoard();}
+
 //現在の手番のプレイヤー名
 string JS_getCurrentPlayerString() { return "現在の手番：" + JS_state.getCurrentPlayerName(); }
 
@@ -852,6 +864,7 @@ EMSCRIPTEN_BINDINGS(myModule)
     emscripten::function("JS_isPutOX", &JS_isPutOX);
     emscripten::function("JS_getPutOX", &JS_getPutOX);
     emscripten::function("JS_nextDeleteCell", &JS_nextDeleteCell);
+    emscripten::function("JS_resetBoard", &JS_resetBoard);
     emscripten::function("JS_getCurrentPlayerString", &JS_getCurrentPlayerString);
     emscripten::function("JS_isFinished", &JS_isFinished);
     emscripten::function("JS_isCurrentPlayerCPU", &JS_isCurrentPlayerCPU);
