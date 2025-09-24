@@ -161,6 +161,7 @@
 
             gameoverString.textContent = "";
             
+            Module.JS_resetBoard(); //WASMの盤面(pieces)も初期化
             updateBoardAndInfo();
             processCPUIfNeeded();
         }
