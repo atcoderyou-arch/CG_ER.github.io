@@ -3,8 +3,7 @@
 //https://github.com/thun-c/GameSearch/blob/master/source/AlternateGame.cpp#L44
 
 //memo****************************************************//
-//oxゲームを題材に、クラス、ゲームAIおよびWEBでの処理の勉強のため
-//oxゲームは、通常モードに加えて、ランダムに１つoかxを消すモードも作る
+//oxゲームは、通常モードに加えて、oかxを消すモードも作る
 //CPUの強さは、1,99 
 //1は弱い（ランダム)、99はminimaxで完全読み
 //MCTS も(deleteモードではMCTSとする？)
@@ -12,7 +11,6 @@
 //memo****************************************************//
 
 
-//Ver    : 0.1.0
 //Author : cg_er
 
 
@@ -365,7 +363,9 @@ public:
     //指定のインデックスが次消えるマスであるか
     //マスに6つ置いてあるときのみ
     bool isNextDeleteCell(int index){
-        return (this->pieceCount(this->pieces_) + this->pieceCount(this->enemy_pieces_)) == MAX_PUT_OX;
+        if ((this->pieceCount(this->pieces_) + this->pieceCount(this->enemy_pieces_)) != MAX_PUT_OX) return false;
+        if (index == getNextDelMyPos()) return true;
+        return false;
     }
 
     //指定のインデックスのマスにoxが置かれているか
