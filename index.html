@@ -161,7 +161,6 @@
 
             gameoverString.textContent = "";
             
-            Module.JS_resetBoard(); //WASMの盤面(pieces)も初期化
             updateBoardAndInfo();
             processCPUIfNeeded();
         }
@@ -188,9 +187,7 @@
                     //置かれていない場合はなし
                     cell.textContent = ""; 
                 }
-                //debug
-                //cell.textContent = i;
-                console.log(i, Module.JS_nextDeleteCell(i));
+                
                 //次消えるところはハイライトする
                 if (Module.JS_nextDeleteCell(i)) {
                     cell.classList.add("nextDeleteCell");
@@ -231,7 +228,7 @@
 
             //deleteを入れる
             Module.JS_deleteCell();
-            
+
             updateBoardAndInfo();
 
             if (Module.JS_isFinished()) {

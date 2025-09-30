@@ -301,7 +301,8 @@ public:
 		std::swap(this->pieces_, this->enemy_pieces_);
 
         //deleteモードのためにキューに追加 //別メソッドがいいかも
-        que_transaction.push_back(action);
+        //delete modeであれば
+        if (isDeleteMode()) que_transaction.push_back(action);
     
         //人・CPU判定用
         this->currentPlayerID = 1 - this->currentPlayerID;
@@ -376,13 +377,15 @@ public:
         return this->pieces_[index] || this->enemy_pieces_[index];
     }
 
-    //盤面のマスに置いているoxの情報をリセット　
-    //これを入れてみて、スタート時に、WEB上の盤面がリセットされるかを確認する
+    //盤面のマスに置いているoxの情報をリセット
+    //キューをリセット
     void resetBoard(){
         for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
             this->pieces_[i] = 0;
             this->enemy_pieces_[i] = 0;
         }
+
+        que_transaction.clear();
     } 
 
     //指定のインデックスのマスに置かれているox
@@ -820,6 +823,7 @@ void JS_initializeGame(int boardsize, int game_mode, bool player1_isCPU, int pla
     setup.player2_isCPU = player2_isCPU;
     setup.player2_CPUstrength = player2_CPUstrength;
     JS_state.init(setup);
+    JS_state.resetBoard();
 }
 
 //画面更新
@@ -840,8 +844,7 @@ bool JS_nextDeleteCell(int chipIndex) {
     return false;
 }
 
-//開始時の盤面の初期化
-void JS_resetBoard(){return JS_state.resetBoard();}
+
 
 //現在の手番のプレイヤー名
 string JS_getCurrentPlayerString() { return "現在の手番：" + JS_state.getCurrentPlayerName(); }
@@ -873,7 +876,6 @@ EMSCRIPTEN_BINDINGS(myModule)
     emscripten::function("JS_isPutOX", &JS_isPutOX);
     emscripten::function("JS_getPutOX", &JS_getPutOX);
     emscripten::function("JS_nextDeleteCell", &JS_nextDeleteCell);
-    emscripten::function("JS_resetBoard", &JS_resetBoard);
     emscripten::function("JS_getCurrentPlayerString", &JS_getCurrentPlayerString);
     emscripten::function("JS_isFinished", &JS_isFinished);
     emscripten::function("JS_isCurrentPlayerCPU", &JS_isCurrentPlayerCPU);
