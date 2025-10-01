@@ -50,6 +50,7 @@
         
         .nextDeleteCell{
             background-color: rgba(255, 165, 0, 0.5); /* オレンジ色 */
+            pointer-events: none; /* クリック不可 */
         }
 
 
@@ -177,21 +178,21 @@
                 cell.classList.add("cell");
                 cell.dataset.index = i; // ChipIndex = 盤面上の座標
 
-                //すでにoxが置かれているかを問い合せる
-                if (Module.JS_isPutOX(i)) {
+                //次消えるところはハイライトする
+                if (Module.JS_nextDeleteCell(i)) {
+                    cell.classList.add("nextDeleteCell");
+                }else if (Module.JS_isPutOX(i)) {
+                    //すでにoxが置かれているかを問い合せる
                     cell.classList.add("putox");
                     //cell.dataset.value = 0;
                     cell.textContent = Module.JS_getPutOX(i); //座標iの値(ox)を入れる
                     
-                } else {
+                }else {
                     //置かれていない場合はなし
                     cell.textContent = ""; 
                 }
                 
-                //次消えるところはハイライトする
-                if (Module.JS_nextDeleteCell(i)) {
-                    cell.classList.add("nextDeleteCell");
-                }
+                
 
 
                 cell.addEventListener("click", () => handleCellClick(cell));
