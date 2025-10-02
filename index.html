@@ -162,11 +162,11 @@
 
             gameoverString.textContent = "";
             
-            updateBoardAndInfo();
+            updateBoardAndInfo(-1);
             processCPUIfNeeded();
         }
 
-        function updateBoardAndInfo() {
+        function updateBoardAndInfo(nextDelMyPos) {
             
             const boardSize = Module.JS_getBoardSize();
             board.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`;
@@ -181,7 +181,9 @@
                 //次消えるところはハイライトする
                 if (Module.JS_nextDeleteCell(i)) {
                     cell.classList.add("nextDeleteCell");
+                    cell.textContent = Module.JS_getPutOX(nextDelMyPos); 
                     
+
                 }else if (Module.JS_isPutOX(i)) {
                     //すでにoxが置かれているかを問い合せる
                     cell.classList.add("putox");
@@ -228,11 +230,13 @@
 
             Module.JS_advance(nextMove);
 
-            
-            updateBoardAndInfo();
+            //deleteのハイライト時のox取得
+            nextDelMyPos =  Module.JS_getNextDelMyPos();
 
             //deleteを入れる
             Module.JS_deleteCell();
+
+            updateBoardAndInfo(nextDelMyPos);
 
             if (Module.JS_isFinished()) {
                 endGame();
@@ -250,14 +254,18 @@
             const chipIndex = parseInt(cell.dataset.index);
             if (!Module.JS_isValidAction(chipIndex)) return;
             
-            // ボード更新
-            updateBoardAndInfo()
-
+            
             // 実行
             Module.JS_advance(chipIndex);
 
+            //deleteのハイライト時のox取得
+            nextDelMyPos =  Module.JS_getNextDelMyPos();
+
             //deleteをいれる
             Module.JS_deleteCell();
+
+            // ボード更新
+            updateBoardAndInfo(nextDelMyPos)
 
             // ゲーム終了していたら終了
             if (Module.JS_isFinished()) {

@@ -844,6 +844,14 @@ bool JS_nextDeleteCell(int chipIndex) {
     return false;
 }
 
+//次消えるマス（ハイライトのときにoxを表示するため）
+int JS_getNextDelMyPos(){
+    if (JS_state.isDeleteMode()) {
+        return JS_state.getNextDelMyPos();
+    }
+    return -1; //通常モード時は-1を返す
+}
+
 
 
 //現在の手番のプレイヤー名
@@ -876,6 +884,7 @@ EMSCRIPTEN_BINDINGS(myModule)
     emscripten::function("JS_isPutOX", &JS_isPutOX);
     emscripten::function("JS_getPutOX", &JS_getPutOX);
     emscripten::function("JS_nextDeleteCell", &JS_nextDeleteCell);
+    emscripten::function("JS_getNextDelMyPos", &JS_getNextDelMyPos);
     emscripten::function("JS_getCurrentPlayerString", &JS_getCurrentPlayerString);
     emscripten::function("JS_isFinished", &JS_isFinished);
     emscripten::function("JS_isCurrentPlayerCPU", &JS_isCurrentPlayerCPU);
