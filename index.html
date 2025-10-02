@@ -228,10 +228,11 @@
 
             Module.JS_advance(nextMove);
 
+            
+            updateBoardAndInfo();
+
             //deleteを入れる
             Module.JS_deleteCell();
-
-            updateBoardAndInfo();
 
             if (Module.JS_isFinished()) {
                 endGame();
@@ -252,11 +253,11 @@
             // 実行
             Module.JS_advance(chipIndex);
 
-            //deleteをいれる
-            Module.JS_deleteCell();
-
             // ボード更新
             updateBoardAndInfo()
+
+            //deleteをいれる
+            Module.JS_deleteCell();
 
             // ゲーム終了していたら終了
             if (Module.JS_isFinished()) {
