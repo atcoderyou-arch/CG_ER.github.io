@@ -181,7 +181,7 @@
                 //次消えるところはハイライトする
                 if (Module.JS_nextDeleteCell(i)) {
                     cell.classList.add("nextDeleteCell");
-                    cell.textContent = Module.JS_getPutOX(i); //座標iの値(ox)を入れる
+                    
                 }else if (Module.JS_isPutOX(i)) {
                     //すでにoxが置かれているかを問い合せる
                     cell.classList.add("putox");
@@ -249,12 +249,12 @@
             // 有効な処理か判定
             const chipIndex = parseInt(cell.dataset.index);
             if (!Module.JS_isValidAction(chipIndex)) return;
+            
+            // ボード更新
+            updateBoardAndInfo()
 
             // 実行
             Module.JS_advance(chipIndex);
-
-            // ボード更新
-            updateBoardAndInfo()
 
             //deleteをいれる
             Module.JS_deleteCell();
