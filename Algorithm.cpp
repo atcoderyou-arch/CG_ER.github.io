@@ -349,6 +349,11 @@ public:
       
     }
 
+    //キューのサイズを取得
+    int getQueSize(){
+        return que_transaction.size();
+    }
+
     //次消える自分のマスの位置を取得(delete_mode)
     //マスに6つ置いてあるときのみ
     int getNextDelMyPos(){
@@ -361,13 +366,18 @@ public:
         return this->que_transaction.at(1); //次の相手の消えるマスなので１index
     }
 
+    bool isPutOnSixOX(){
+        if ((this->pieceCount(this->pieces_) + this->pieceCount(this->enemy_pieces_)) < MAX_PUT_OX) return false;
+        return true;
+    }
+
     //指定のインデックスが次消えるマスであるか
     //マスに6つ置いてあるときのみ
     bool isNextDeleteCell(int index){
         int total = this->pieceCount(this->pieces_) + this->pieceCount(this->enemy_pieces_);
         std::cout << "index=" << index << ", total=" << total << ", MAX=" << MAX_PUT_OX << std::endl;
         std::cout << "Next del pos: " << getNextDelMyPos() << std::endl;
-        if ((this->pieceCount(this->pieces_) + this->pieceCount(this->enemy_pieces_)) < MAX_PUT_OX) return false;
+        if (!isPutOnSixOX()) return false;
         if (index == getNextDelMyPos()) return true;
         return false;
     }
@@ -846,10 +856,15 @@ bool JS_nextDeleteCell(int chipIndex) {
 
 //次消えるマスのox（ハイライトのときにoxを表示するため）
 string JS_getNextDelMyPosOX(){
-    if (JS_state.isDeleteMode()) {
-        return JS_state.getPutOX(JS_state.getNextDelEnemyPos()); //実装上index 1 を取得
+    if (JS_state.isDeleteMode() && JS_state.isPutOnSixOX()) {
+        
+        int que_size = JS_state.getQueSize();
+        int pos = -1;
+        if (que_size == 6) pos = JS_state.getNextDelMyPos();
+        if (que_size == 7) pos = JS_state.getNextDelEnemyPos();
+        return JS_state.getPutOX(pos); 
     }
-    return ""; //通常モード時は"" を返す
+    return ""; 
 }
 
 
