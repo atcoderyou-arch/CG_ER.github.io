@@ -847,7 +847,7 @@ bool JS_nextDeleteCell(int chipIndex) {
 //次消えるマスのox（ハイライトのときにoxを表示するため）
 string JS_getNextDelMyPosOX(){
     if (JS_state.isDeleteMode()) {
-        return JS_state.getPutOX(JS_state.getNextDelMyPos());
+        return JS_state.getPutOX(JS_state.getNextDelEnemyPos()); //実装上index 1 を取得
     }
     return ""; //通常モード時は"" を返す
 }
